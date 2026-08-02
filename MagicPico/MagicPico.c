@@ -63,23 +63,29 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
     }
 }
 
-void ble_setup(void) {
+bool ble_setup(void) {
     l2cap_init();
     hci_event_cb.callback = &packet_handler;
     hci_add_event_handler(&hci_event_cb);
     hci_power_control(HCI_POWER_ON);
 
-    // btstack_run_loop_execute() needs to spin at least once
-    // before ble_ready is set — call //broadcast_packet() only after that.
-
     bd_addr_t null_addr = {0,0,0,0,0,0};
     gap_advertisements_set_params(
-        0x20, 0x40,    // min/max interval — same 0x20/0x40 as the ESP32 version
-        0,             // ADV_IND, undirected connectable
-        0, null_addr,  // direct addr fields unused for undirected adv
-        0x07,          // all 3 advertising channels
-        0x00           // no filter/whitelist
+        0x20, 0x40,
+        0,
+        0, null_addr,
+        0x07,
+        0x00
     );
+
+
+    // Wait up to 3 seconds for BLE stack startup
+    int timeout = 300;
+    while (!ble_ready && timeout-- > 0) {
+        sleep_ms(10);
+    }
+
+    return ble_ready;
 }
 
 
@@ -88,6 +94,9 @@ void broadcast_packet(const uint8_t *data, size_t length) {
     if (length >= 2 && data[0] == 0x83 && data[1] == 0x01) {
         start_idx = 2;
     }
+    static const uint8_t scan_response_data[] = {
+    0x0B, 0x09, 'M', 'a', 'g', 'i', 'c', 'P', 'i', 'c', 'o'
+    };
 
     uint8_t adv_data[31];
     uint8_t idx = 0;
@@ -108,6 +117,7 @@ void broadcast_packet(const uint8_t *data, size_t length) {
 
     gap_advertisements_enable(0);
     gap_advertisements_set_data(idx, adv_data);
+    gap_scan_response_set_data(sizeof(scan_response_data), (uint8_t *) scan_response_data);
     gap_advertisements_enable(1);
 
     sleep_ms(2000);
@@ -180,48 +190,24 @@ uint8_t rainbow[] = {
     (uint8_t)(0xA0|COLOUR_PURPLE),
     (uint8_t)(0xB0|0)
 };
+uint8_t rainbow_len = sizeof(rainbow);
 
 uint8_t circle[] = {
     0x83,0x01,0xE9,0x0B,0x0B,0x0F,0x0F,
     0x5C,0x5D,0x48,0xA5,0xD1,0x45,0x32,
     (uint8_t)(0xB0|7)
 };
-
+uint8_t circle_len = sizeof(circle);
 
 uint8_t Fire[] = {
     0x83,0x01,0xE9,0x10,0x00,0x0F,0x0F,
     0x54,0x5D,0x58,0xF4,0x48,0x82,0xD1,0x46,0x09,0x0A,0xD0,0x65,0x28,
     (uint8_t)(0xB0|VIB_NONE)
 };
-
+uint8_t Fire_len = sizeof(Fire);
 
 uint8_t blueflicker[] = {0x83,0x01,0xE9,0x10,0x00,0x13,0x48,0x97,0xD0,0x0E,0xA0,0xD1,0x46,0x06,0x0F,0x30,0xD0,0x4E,0x07,
     (uint8_t)(0xB0|VIB_NONE)
 };
 
-
-
-int main(void) {
-    stdio_init_all();
-
-    if (cyw43_arch_init()) {
-        printf("cyw43_arch_init failed\n");
-        return -1;
-    }
-
-    ble_setup();
-
-    while (!ble_ready) {
-        sleep_ms(10);
-    }
-
-    connect();
-
-    while (true) {
-        clearband();
-        crossfade(COLOUR_BLUE, COLOUR_GREEN, VIB_NONE);
-        sleep_ms(3000);
-    }
-
-    return 0;
-}
+uint8_t blueflicker_len = sizeof(blueflicker);
