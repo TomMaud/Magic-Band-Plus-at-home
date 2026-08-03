@@ -73,6 +73,13 @@ void clearband(void);
 void singlecolour(uint8_t colour, uint8_t vib, uint8_t mask);
 void dualcolour(uint8_t innercolour, uint8_t outercolour, uint8_t vib);
 void fivecolour(uint8_t centrecolour, uint8_t toprightcolour, uint8_t bottomrightcolour, uint8_t topleftcolour, uint8_t bottomleftcolour, uint8_t vib);
-void crossfade(uint8_t colour1, uint8_t colour2, uint8_t vib);
+void crossfade(uint8_t colour1, uint8_t colour2, uint8_t vib, uint8_t speed);
+void customcolour(uint8_t r, uint8_t g, uint8_t b, uint8_t vib , bool flash_r, bool flash_g, bool flash_b);
+void pulse(uint8_t colour, uint8_t mask, uint8_t speed);
+void dualpulse(uint8_t mask, uint8_t center_colour, uint8_t outer_colour, uint8_t speed, uint8_t vib);
+void alternating_colours(uint8_t mask, uint8_t colour1, uint8_t colour2, uint8_t timing);
+void five_slot_animation(uint8_t centrecolour, uint8_t toprightcolour, uint8_t bottomrightcolour, uint8_t topleftcolour, uint8_t bottomleftcolour, uint8_t timing, uint8_t vib);
+void corners_alternate(uint8_t centrecolour,uint8_t topleftcolour, uint8_t toprightcolour, uint8_t bottomrightcolour, uint8_t bottomleftcolour, uint8_t timing, uint8_t vib);
+
 
 #endif

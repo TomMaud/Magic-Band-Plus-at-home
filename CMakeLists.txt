@@ -37,25 +37,25 @@ pico_sdk_init()
 add_subdirectory(MagicPico)
 
 # Build main application
-add_executable(MagicBandApp
+add_executable(MagicBand
     main.c
 )
 
-pico_set_program_name(MagicBandApp "MagicBandApp")
-pico_set_program_version(MagicBandApp "0.1")
+pico_set_program_name(MagicBand "MagicBand")
+pico_set_program_version(MagicBand "0.1")
 
 # Enable USB serial output for debugging, disable UART
-pico_enable_stdio_uart(MagicBandApp 0)
-pico_enable_stdio_usb(MagicBandApp 1)
+pico_enable_stdio_uart(MagicBand 0)
+pico_enable_stdio_usb(MagicBand 1)
 
-target_include_directories(MagicBandApp PRIVATE
+target_include_directories(MagicBand PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
 )
 
 # Link against the MagicPico library module
-target_link_libraries(MagicBandApp
+target_link_libraries(MagicBand
     MagicPico
 )
 
 # Generate UF2 and extra output files
-pico_add_extra_outputs(MagicBandApp)
+pico_add_extra_outputs(MagicBand)
