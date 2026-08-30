@@ -337,7 +337,7 @@ void animation_worker() {
             case ANIM_FLICKER: {
                 while (current_animation == ANIM_FLICKER) {
                     for (int i = 0; i < 5 && current_animation == ANIM_FLICKER; ++i) {
-                       uint8_t random_index = rand() % 5;
+                       uint8_t random_index = rand() % 7;
                        switch (i)
                        {
                        case 0:
@@ -378,7 +378,6 @@ void animation_worker() {
                        default:
                         break;
                        }
-                       
 
                        
                     }

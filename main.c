@@ -55,7 +55,30 @@ static bool handle_request(const char *request_line)
 
         return true;
     }
-    stop_animations();
+
+
+    char *flicker_centre_param = strstr(request_line, "flickercentre=");
+    char *flicker_topright_param = strstr(request_line, "flickertopright=");
+    char *flicker_bottomright_param = strstr(request_line, "flickerbottomright=");
+    char *flicker_topleft_param = strstr(request_line, "flickertopleft=");
+    char *flicker_bottomleft_param = strstr(request_line, "flickerbottomleft=");
+    char *flicker_vib_param = strstr(request_line, "flickervib=");
+    char *flicker_speed_param = strstr(request_line, "flickerspeed=");
+    if (flicker_centre_param && flicker_topright_param && flicker_bottomright_param && flicker_topleft_param && flicker_bottomleft_param && flicker_vib_param && flicker_speed_param) {
+        uint8_t centre = (uint8_t)strtoul(flicker_centre_param + 14, NULL, 0);
+        uint8_t top_right = (uint8_t)strtoul(flicker_topright_param + 17 , NULL, 0);
+        uint8_t bottom_right = (uint8_t)strtoul(flicker_bottomright_param + 20, NULL, 0);
+        uint8_t top_left = (uint8_t)strtoul(flicker_topleft_param + 16, NULL, 0);
+        uint8_t bottom_left = (uint8_t)strtoul(flicker_bottomleft_param + 19, NULL, 0);
+        uint8_t vibration = (uint8_t)strtoul(flicker_vib_param + 12, NULL, 0);
+        uint8_t speed = (uint8_t)strtoul(flicker_speed_param + 13, NULL, 0);
+
+        start_flicker_animation(speed, centre, top_right, bottom_right, top_left, bottom_left);
+        five_slot_animation(centre, top_right, bottom_right, top_left, bottom_left, speed, vibration);
+        return true;
+    }
+
+
     const char *colour_param = strstr(request_line, "colour=");
     const char *vib_param = strstr(request_line, "vib=");
     const char *mask_param = strstr(request_line, "mask=");
@@ -116,6 +139,7 @@ static bool handle_request(const char *request_line)
         (uint8_t)strtoul(multi_vib_param + 4, NULL, 0);
         fivecolour(centre, top_right, bottom_right, top_left, bottom_left, vibration);
         section_fill(centre, top_right, bottom_right, top_left, bottom_left);
+        return true;
     }
 
     const char *dual_outer_param = strstr(request_line, "dualouter=");
@@ -198,27 +222,6 @@ if (cornera && cornerb && cornerspeed && corner_vib_param && cornercentre) {
     corners_alternate(centre, corner_a, corner_b, corner_b, corner_a, speed, vibration);
     return true;
 }
-    char *flicker_centre_param = strstr(request_line, "flickercentre=");
-    char *flicker_topright_param = strstr(request_line, "flickertopright=");
-    char *flicker_bottomright_param = strstr(request_line, "flickerbottomright=");
-    char *flicker_topleft_param = strstr(request_line, "flickertopleft=");
-    char *flicker_bottomleft_param = strstr(request_line, "flickerbottomleft=");
-    char *flicker_vib_param = strstr(request_line, "flickervib=");
-    char *flicker_speed_param = strstr(request_line, "flickermyRange=");
-    if (flicker_centre_param && flicker_topright_param && flicker_bottomright_param && flicker_topleft_param && flicker_bottomleft_param && flicker_vib_param && flicker_speed_param) {
-        uint8_t centre = (uint8_t)strtoul(flicker_centre_param + 14, NULL, 0);
-        uint8_t top_right = (uint8_t)strtoul(flicker_topright_param + 17 , NULL, 0);
-        uint8_t bottom_right = (uint8_t)strtoul(flicker_bottomright_param + 20, NULL, 0);
-        uint8_t top_left = (uint8_t)strtoul(flicker_topleft_param + 16, NULL, 0);
-        uint8_t bottom_left = (uint8_t)strtoul(flicker_bottomleft_param + 19, NULL, 0);
-        uint8_t vibration = (uint8_t)strtoul(flicker_vib_param + 12, NULL, 0);
-        uint8_t speed = (uint8_t)strtoul(flicker_speed_param + 14, NULL, 0);
-
-        start_flicker_animation(speed, centre, top_right, bottom_right, top_left, bottom_left);
-        five_slot_animation(centre, top_right, bottom_right, top_left, bottom_left, vibration, speed);
-        return true;
-    }
-
     return false;
 }
 
