@@ -48,6 +48,7 @@ static const char HTTP_RESPONSE_BODY_TEMPLATE[] =
     " <option value=\"dual\">Dual-Zone Colour</option>\n"
     " <option value=\"crossfade\">Crossfade</option>\n"
     " <option value=\"corner\">Corners</option>\n"
+    "<option value=\"flicker\">Flicker</option>\n"
     " <option value=\"effects\">Effects</option>\n"
     " </select>\n"
     " <div id=\"single\" class=\"panel active\">\n"
