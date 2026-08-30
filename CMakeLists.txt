@@ -14,48 +14,48 @@ endif()
 # ====================================================================================
 cmake_minimum_required(VERSION 3.13)
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# Force the SDK path globally across all sub-projects and external builds
+set(PICO_SDK_PATH "/Users/tommaud/.pico-sdk/sdk/2.3.0" CACHE PATH "Path to the Pico SDK" FORCE)
+set(PICO_BOARD pico_w CACHE STRING "Board type" FORCE)
 
-# 1. Set the exact Pico SDK path FIRST
-set(PICO_SDK_PATH "/Users/tommaud/.pico-sdk/sdk/2.3.0" CACHE PATH "Path to Pico SDK" FORCE)
-set(PICO_BOARD pico2_w CACHE STRING "Board type")
-
-# 2. Import the SDK script directly
 include(pico_sdk_import.cmake)
 
-# 3. Initialize Project & SDK
-project(MagicBand C CXX ASM)
+project(MagicController C CXX ASM)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+# Pass the SDK path down to subdirectories like MagicBoard
+set(PICO_SDK_PATH "${PICO_SDK_PATH}" PARENT_SCOPE)
+
 pico_sdk_init()
 
-# ==============================================================================
-# SUBDIRECTORY MODULE & EXECUTABLE
-# ==============================================================================
+add_subdirectory(MagicBoard)
 
-# Add the module subfolder
-add_subdirectory(MagicPico)
-
-# Build main application
-add_executable(MagicBand
+add_executable(MagicController
     main.c
+    MagicPico/MagicPico.c
+    lib/dhcpserver/dhcpserver.c
+    lib/dnsserver/dnsserver.c
 )
 
-pico_set_program_name(MagicBand "MagicBand")
-pico_set_program_version(MagicBand "0.1")
+pico_enable_stdio_uart(MagicController 0)
+pico_enable_stdio_usb(MagicController 1)
 
-# Enable USB serial output for debugging, disable UART
-pico_enable_stdio_uart(MagicBand 0)
-pico_enable_stdio_usb(MagicBand 1)
-
-target_include_directories(MagicBand PRIVATE
+# Set include paths matching your folder layout
+target_include_directories(MagicController PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}/MagicPico
+    ${CMAKE_CURRENT_LIST_DIR}/lib/dhcpserver
+    ${CMAKE_CURRENT_LIST_DIR}/lib/dnsserver
 )
 
-# Link against the MagicPico library module
-target_link_libraries(MagicBand
-    MagicPico
+target_link_libraries(MagicController
+    pico_stdlib
+    pico_multicore
+    pico_cyw43_arch_lwip_poll
+    pico_btstack_cyw43
+    pico_btstack_ble
+    MagicBoard
 )
 
-# Generate UF2 and extra output files
-pico_add_extra_outputs(MagicBand)
+pico_add_extra_outputs(MagicController)

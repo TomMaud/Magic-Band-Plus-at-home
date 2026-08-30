@@ -1,85 +1,48 @@
-#ifndef MAGICBAND_H
-#define MAGICBAND_H
+#ifndef MAGICPICO_H
+#define MAGICPICO_H
 
-#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-// --- Enums ---
-typedef enum {
-    COLOUR_CYAN          = 0x00,
-    COLOUR_PURPLE        = 0x01,
-    COLOUR_BLUE          = 0x02,
-    COLOUR_MIDNIGHT_BLUE = 0x03,
-    COLOUR_BRIGHT_PURPLE = 0x05,
-    COLOUR_LAVENDER      = 0x06,
-    COLOUR_PINK          = 0x08,
-    COLOUR_YELLOW_ORANGE = 0x0F,
-    COLOUR_OFF_YELLOW    = 0x10,
-    COLOUR_LIME          = 0x12,
-    COLOUR_ORANGE        = 0x13,
-    COLOUR_RED_ORANGE    = 0x14,
-    COLOUR_RED           = 0x15,
-    COLOUR_GREEN         = 0x19,
-    COLOUR_LIME_GREEN    = 0x1A,
-    COLOUR_WHITE         = 0x1B,
-    COLOUR_OFF           = 0x1D,
-    COLOUR_RANDOM        = 0x1F
-} magic_band_colour_t;
 
-typedef enum {
-    VIB_NONE      = 0x0,   
-    VIB_S         = 0x1,
-    VIB_S_S       = 0x2,
-    VIB_S_S_S     = 0x3,
-    VIB_S_S_M     = 0x4,
-    VIB_S4_M_S    = 0x5,
-    VIB_S3_M3_S3  = 0x6,
-    VIB_XL        = 0x7,
-    VIB_XS6       = 0x8,
-    VIB_S_ALT     = 0x9,
-    VIB_M         = 0xA,
-    VIB_L         = 0xB
-} magic_band_vib_t;
 
-typedef enum {
-    MASK_ALL          = 0x00,  // 000b - All LEDs
-    MASK_TOP_RIGHT    = 0x20,  // 001b - Only top right LED
-    MASK_BOTTOM_RIGHT = 0x40,  // 010b - Only bottom right LED
-    MASK_BOTTOM_LEFT  = 0x60,  // 011b - Only bottom left LED
-    MASK_TOP_LEFT     = 0x80   // 100b - Only top left LED
-} magic_band_mask_t;
+#define MAGIC_PICO_ADVERTISING_TIME_MS 5000
 
-// --- Preset Arrays ---
-extern const uint8_t rainbow[];
-extern const uint8_t rainbow_len;
+void magicpico_init(void);
+bool magicpico_is_ready(void);
+void magicpico_update(void);
 
-extern const uint8_t circle[];
-extern const uint8_t circle_len;
+void send_colour(uint8_t colour,
+                           uint8_t vibration,
+                           uint8_t mask);
 
-extern const uint8_t Fire[];
-extern const uint8_t Fire_len;
+void magicpico_wake(void);
+void magicpico_clear(void);
 
-extern const uint8_t blue_flicker[];
-extern const uint8_t blue_flicker_len;
+void magicpico_stop(void);
+bool magicpico_is_advertising(void);
 
-// --- Core API Functions ---
-bool ble_setup(void);
-void broadcast_packet(const uint8_t *data, size_t length);
-
-// --- Command Functions ---
-void connect(void);
-void clearband(void);
-void singlecolour(uint8_t colour, uint8_t vib, uint8_t mask);
-void dualcolour(uint8_t innercolour, uint8_t outercolour, uint8_t vib);
-void fivecolour(uint8_t centrecolour, uint8_t toprightcolour, uint8_t bottomrightcolour, uint8_t topleftcolour, uint8_t bottomleftcolour, uint8_t vib);
-void crossfade(uint8_t colour1, uint8_t colour2, uint8_t vib, uint8_t speed);
+void fivecolour(uint8_t centre, uint8_t top_right, uint8_t bottom_right, uint8_t top_left, uint8_t bottom_left, uint8_t vibration);
 void customcolour(uint8_t r, uint8_t g, uint8_t b, uint8_t vib , bool flash_r, bool flash_g, bool flash_b);
-void pulse(uint8_t colour, uint8_t mask, uint8_t speed);
+void dualcolour(uint8_t innercolour, uint8_t outercolour, uint8_t vib);
+void crossfade(uint8_t colour1, uint8_t colour2, uint8_t vib, uint8_t speed);
+void pulse(uint8_t colour, uint8_t mask, uint8_t speed, uint8_t vib);
 void dualpulse(uint8_t mask, uint8_t center_colour, uint8_t outer_colour, uint8_t speed, uint8_t vib);
-void alternating_colours(uint8_t mask, uint8_t colour1, uint8_t colour2, uint8_t timing);
-void five_slot_animation(uint8_t centrecolour, uint8_t toprightcolour, uint8_t bottomrightcolour, uint8_t topleftcolour, uint8_t bottomleftcolour, uint8_t timing, uint8_t vib);
+void five_slot_animation(uint8_t centre, uint8_t top_right, uint8_t bottom_right, uint8_t top_left, uint8_t bottom_left, uint8_t vib, uint8_t speed); 
+void alternating_colours(uint8_t colour1, uint8_t colour2, uint8_t timing);
 void corners_alternate(uint8_t centrecolour,uint8_t topleftcolour, uint8_t toprightcolour, uint8_t bottomrightcolour, uint8_t bottomleftcolour, uint8_t timing, uint8_t vib);
+void broadcast_packet(uint8_t *packet, uint8_t packet_size);
+
+extern uint8_t blink_white[]; // 18 bytes
+extern uint8_t orange_blink[]; // 18 bytes
+extern uint8_t colour_cycle[]; // 18 bytes
+extern uint8_t taste_rainbow[]; // 18 bytes
+extern uint8_t circle[];
+extern uint8_t circle_len;
+extern uint8_t taste_rainbow_len;
+extern uint8_t blink_white_len;
+extern uint8_t orange_blink_len;
+extern uint8_t colour_cycle_len;
 
 
 #endif
