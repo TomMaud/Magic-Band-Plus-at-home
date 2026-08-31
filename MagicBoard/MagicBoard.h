@@ -56,6 +56,13 @@ void section_fill(uint32_t centrecolour, uint32_t toprightcolour, uint32_t botto
 uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness);
 void pattern_clear();
 void custom_colour_fill(uint8_t red, uint8_t green, uint8_t blue, uint mask);
+void alternatediagonals(uint32_t colour_a, uint32_t colour_b, bool orientation);
+void alternatelayers(uint32_t colour_a, uint32_t colour_b);
+void commit_pattern();
+void diagonalsband(uint32_t colour_a, uint32_t colour_b, uint32_t colour_c, uint32_t colour_d, uint32_t colour_e, uint32_t colour_f, uint32_t colour_g, bool orientation);
+void layersband(uint32_t colour_a, uint32_t colour_b, uint32_t colour_c, uint32_t colour_d, uint32_t colour_e, uint32_t colour_f, uint32_t colour_g);
+void diagonals(uint32_t layercolour, uint32_t diagonal_number, bool orientation);
+void layers(uint32_t layercolour, uint32_t layer_number);
 
 void stop_animations();
 void start_crossfade_animation(uint8_t code_a, uint8_t code_b, uint8_t speed);

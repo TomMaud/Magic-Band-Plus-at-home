@@ -20,6 +20,8 @@
 #define HTTP_PORT 80
 #define HTTPS_PORT 443
 
+#define LED_BRIGHTNESS 10
+
 typedef struct
 {
     const char *ptr;
@@ -51,6 +53,52 @@ static bool handle_request(const char *request_line)
         {
             stop_animations();
             magicpico_clear();
+        }
+        else if (strncmp(band_param, "pride", 5) == 0)
+        {
+            stop_animations();
+            magicpico_clear();
+            
+            layers(urgb_u32(255, 0, 0, LED_BRIGHTNESS), 7);
+            layers(urgb_u32(255, 165, 0, LED_BRIGHTNESS), 6);
+            layers(urgb_u32(255, 255, 0, LED_BRIGHTNESS), 5);
+            layers(urgb_u32(0, 128, 0, LED_BRIGHTNESS), 4);
+            layers(urgb_u32(0, 0, 255, LED_BRIGHTNESS), 3);
+            layers(urgb_u32(75, 0, 130, LED_BRIGHTNESS), 2);
+            layers(urgb_u32(238, 130, 238, LED_BRIGHTNESS), 1);
+            commit_pattern();
+            broadcast_packet(taste_rainbow, taste_rainbow_len);
+        }
+        else if (strncmp(band_param, "bisexual", 8) == 0)
+        {
+            uint32_t colours[] = {urgb_u32(214, 2, 112,LED_BRIGHTNESS),urgb_u32(177, 10, 217,LED_BRIGHTNESS),urgb_u32(0, 56, 168,LED_BRIGHTNESS)};
+
+            stop_animations();
+            magicpico_clear();
+            layers(colours[0], 7);
+            layers(colours[0], 6);
+            layers(colours[1], 5);
+            layers(colours[1], 4);
+            layers(colours[1], 3);
+            layers(colours[2], 2);
+            layers(colours[2], 1);
+            commit_pattern();
+            fivecolour(COLOUR_PURPLE, COLOUR_MIDNIGHT_BLUE, COLOUR_MIDNIGHT_BLUE, COLOUR_PINK, COLOUR_PINK, VIB_NONE);
+        }
+        else if (strncmp(band_param, "transgender", 11) == 0)
+        {
+            uint32_t colours[] = {urgb_u32(51, 106, 250, LED_BRIGHTNESS),urgb_u32(214, 2, 112, LED_BRIGHTNESS),urgb_u32(255,255,255, LED_BRIGHTNESS)};
+            stop_animations();
+            magicpico_clear();
+            layers(colours[0], 7);
+            layers(colours[0], 6);
+            layers(colours[1], 5);
+            layers(colours[2], 4);
+            layers(colours[1], 3);
+            layers(colours[0], 2);
+            layers(colours[0], 1);
+            commit_pattern();
+            fivecolour(COLOUR_WHITE, COLOUR_PINK, COLOUR_CYAN, COLOUR_CYAN, COLOUR_PINK, VIB_NONE);
         }
 
         return true;
@@ -219,9 +267,64 @@ if (cornera && cornerb && cornerspeed && corner_vib_param && cornercentre) {
 
     stop_animations();
     start_corners_animation(speed, centre, corner_a, corner_b);
-    corners_alternate(centre, corner_a, corner_b, corner_b, corner_a, speed, vibration);
+    corners_alternate(centre, corner_a, corner_b, corner_a, corner_b, speed, vibration);
     return true;
 }
+
+    char *diagonal1 = strstr(request_line, "diagonal1=");
+    char *diagonal2 = strstr(request_line, "diagonal2=");
+    char *diagonal3 = strstr(request_line, "diagonal3=");
+    char *diagonal4 = strstr(request_line, "diagonal4=");
+    char *diagonal5 = strstr(request_line, "diagonal5=");
+    char *diagonal6 = strstr(request_line, "diagonal6=");
+    char *diagonal7 = strstr(request_line, "diagonal7=");
+    char *diagonal_orientation = strstr(request_line, "orientation=");
+    char *diagonalVib = strstr(request_line, "diagonalVib=");
+
+    if (diagonal1 && diagonal2 && diagonal3 && diagonal4 && diagonal5 && diagonal6 && diagonal7 && diagonalVib && diagonal_orientation) {
+        uint8_t d1 = (uint8_t)strtoul(diagonal1 + 10, NULL, 0);
+        uint8_t d2 = (uint8_t)strtoul(diagonal2 + 10, NULL, 0);
+        uint8_t d3 = (uint8_t)strtoul(diagonal3 + 10, NULL, 0);
+        uint8_t d4 = (uint8_t)strtoul(diagonal4 + 10, NULL, 0);
+        uint8_t d5 = (uint8_t)strtoul(diagonal5 + 10, NULL, 0);
+        uint8_t d6 = (uint8_t)strtoul(diagonal6 + 10, NULL, 0);
+        uint8_t d7 = (uint8_t)strtoul(diagonal7 + 10, NULL, 0);
+        uint8_t orientation = (uint8_t)strtoul(diagonal_orientation + 12, NULL, 0);
+        uint8_t vib = (uint8_t)strtoul(diagonalVib + 12, NULL, 0);
+        bool orientation_toggle = (orientation == 1) ? true : false;
+        stop_animations();
+        diagonalsband(d1, d2, d3, d4, d5, d6, d7, orientation_toggle);
+        fivecolour(d1, d2, d3, d4, d5, vib);
+        
+        return true;
+    }
+
+    char *layer1 = strstr(request_line, "layer1=");
+    char *layer2 = strstr(request_line, "layer2=");
+    char *layer3 = strstr(request_line, "layer3=");
+    char *layer4 = strstr(request_line, "layer4=");
+    char *layer5 = strstr(request_line, "layer5=");
+    char *layer6 = strstr(request_line, "layer6=");
+    char *layer7 = strstr(request_line, "layer7=");
+    char *layerVib = strstr(request_line, "layerVib=");
+
+    if (layer1 && layer2 && layer3 && layer4 && layer5 && layer6 && layer7 && layerVib) {
+        uint8_t l1 = (uint8_t)strtoul(layer1 + 7, NULL, 0);
+        uint8_t l2 = (uint8_t)strtoul(layer2 + 7, NULL, 0);
+        uint8_t l3 = (uint8_t)strtoul(layer3 + 7, NULL, 0);
+        uint8_t l4 = (uint8_t)strtoul(layer4 + 7, NULL, 0);
+        uint8_t l5 = (uint8_t)strtoul(layer5 + 7, NULL, 0);
+        uint8_t l6 = (uint8_t)strtoul(layer6 + 7, NULL, 0);
+        uint8_t l7 = (uint8_t)strtoul(layer7 + 7, NULL, 0);
+        uint8_t vib = (uint8_t)strtoul(layerVib + 12, NULL, 0);
+        stop_animations();
+        layersband(l1, l2, l3, l4, l5, l6, l7);
+        fivecolour(l1, l2, l3, l4, l5, vib);
+        
+        
+        return true;
+    }
+
     return false;
 }
 
@@ -450,7 +553,8 @@ int main(void){
 
     printf("Initialising MagicPico BLE advertiser...\n");
     magicpico_init();
-    initleds(16, 31, 10);
+
+    initleds(16, 31, LED_BRIGHTNESS);
 
     while (!magicpico_is_ready()){
         cyw43_arch_poll();

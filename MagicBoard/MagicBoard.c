@@ -13,8 +13,6 @@
 enum { NUM_PIXELS = 31 };
 uint brightness;
 
-magic_band_mask_t holdmask[5] = {0x20,0x40, 0x60, 0x80, 0xA0};
-
 typedef enum {
     ANIM_NONE = 0,
     ANIM_CROSSFADE,
@@ -117,6 +115,32 @@ static uint TopRight[] = {22,23,24,25,26,30};
 static uint TopLeft[] = {17,18,19,27,28,29};
 static uint Centre[] = {9,10,14,15,16,20,21};
 
+static uint layer1[] = {0,1};
+static uint layer2[] = {2,3,4,5,6};
+static uint layer3[] = {7,8,9,10,11,12};
+static uint layer4[] = {13, 14,15,16,17};
+static uint layer5[] = {18,19,20,21,22,23};
+static uint layer6[] = {24, 25,26,27,28};
+static uint layer7[] = {29, 30};
+
+static uint rdiagonal1[] = {2, 12};
+static uint rdiagonal2[] = {1, 3,11,13,23};
+static uint rdiagonal3[] = {0, 4, 10, 14, 22, 24};
+static uint rdiagonal4[] = {5, 9, 15, 21, 25};
+static uint rdiagonal5[] = {6, 8, 16, 20, 26, 30};
+static uint rdiagonal6[] = {7, 17, 19, 27, 29};
+static uint rdiagonal7[] = {18, 28};
+
+static uint ldiagonal1[] = {6,7};
+static uint ldiagonal2[] = {0,5,8,17,18};
+static uint ldiagonal3[] = {1,4,9,16,19,28};
+static uint ldiagonal4[] = {3,10,15,20,27};
+static uint ldiagonal5[] = {2,11,14,21,26,29};
+static uint ldiagonal6[] = {12,13,22,25,30};
+static uint ldiagonal7[] = {23,24};
+
+
+
 
 static bool put_pixel(uint32_t pixel_grb) {
     if (!leds_ready) {
@@ -216,6 +240,196 @@ void section_fill(uint32_t centrecolour, uint32_t toprightcolour, uint32_t botto
     commit_pattern();
 }
 
+
+void diagonals(uint32_t layercolour, uint32_t diagonal_number, bool orientation) {
+      if (orientation) {
+          switch(diagonal_number) {
+              case 1:
+                  for (uint i = 0; i < sizeof(rdiagonal1) / sizeof(rdiagonal1[0]); ++i) {
+                      pixelcolours[rdiagonal1[i]] = layercolour;
+                  }
+                  break;
+              case 2:
+                  for (uint i = 0; i < sizeof(rdiagonal2) / sizeof(rdiagonal2[0]); ++i) {
+                      pixelcolours[rdiagonal2[i]] = layercolour;
+                  }
+                  break;
+              case 3:
+                  for (uint i = 0; i < sizeof(rdiagonal3) / sizeof(rdiagonal3[0]); ++i) {
+                      pixelcolours[rdiagonal3[i]] = layercolour;
+                  }
+                  break;
+              case 4:
+                  for (uint i = 0; i < sizeof(rdiagonal4) / sizeof(rdiagonal4[0]); ++i) {
+                      pixelcolours[rdiagonal4[i]] = layercolour;
+                  }
+                  break;
+              case 5:
+                  for (uint i = 0; i < sizeof(rdiagonal5) / sizeof(rdiagonal5[0]); ++i) {
+                      pixelcolours[rdiagonal5[i]] = layercolour;
+                  }
+                  break;
+              case 6:
+                  for (uint i = 0; i < sizeof(rdiagonal6) / sizeof(rdiagonal6[0]); ++i) {
+                      pixelcolours[rdiagonal6[i]] = layercolour;
+                  }
+                  break;
+              case 7:
+                  for (uint i = 0; i < sizeof(rdiagonal7) / sizeof(rdiagonal7[0]); ++i) {
+                      pixelcolours[rdiagonal7[i]] = layercolour;
+                  }
+                  break;
+              default:
+                  break;
+          }
+      } else {
+          switch(diagonal_number) {
+              case 1:
+                  for (uint i = 0; i < sizeof(ldiagonal1) / sizeof(ldiagonal1[0]); ++i) {
+                      pixelcolours[ldiagonal1[i]] = layercolour;
+                  }
+                  break;
+              case 2:
+                  for (uint i = 0; i < sizeof(ldiagonal2) / sizeof(ldiagonal2[0]); ++i) {
+                      pixelcolours[ldiagonal2[i]] = layercolour;
+                  }
+                  break;
+              case 3:
+                  for (uint i = 0; i < sizeof(ldiagonal3) / sizeof(ldiagonal3[0]); ++i) {
+                      pixelcolours[ldiagonal3[i]] = layercolour;
+                  }
+                  break;
+              case 4:
+                  for (uint i = 0; i < sizeof(ldiagonal4) / sizeof(ldiagonal4[0]); ++i) {
+                      pixelcolours[ldiagonal4[i]] = layercolour;
+                  }
+                  break;
+              case 5:
+                  for (uint i = 0; i < sizeof(ldiagonal5) / sizeof(ldiagonal5[0]); ++i) {
+                      pixelcolours[ldiagonal5[i]] = layercolour;
+                  }
+                  break;
+              case 6:
+                  for (uint i = 0; i < sizeof(ldiagonal6) / sizeof(ldiagonal6[0]); ++i) {
+                      pixelcolours[ldiagonal6[i]] = layercolour;
+                  }
+                  break;
+              case 7:
+                  for (uint i = 0; i < sizeof(ldiagonal7) / sizeof(ldiagonal7[0]); ++i) {
+                      pixelcolours[ldiagonal7[i]] = layercolour;
+                  }
+                  break;
+              default:
+                  break;
+          }
+      }
+}
+
+void diagonalsband(uint32_t colour_a, uint32_t colour_b, uint32_t colour_c, uint32_t colour_d, uint32_t colour_e, uint32_t colour_f, uint32_t colour_g, bool orientation) {
+    uint32_t send_coloura = get_led_colour_value(colour_a, brightness);
+    uint32_t send_colourb = get_led_colour_value(colour_b, brightness);
+    uint32_t send_colourc = get_led_colour_value(colour_c, brightness);
+    uint32_t send_colourd = get_led_colour_value(colour_d, brightness);
+    uint32_t send_coloure = get_led_colour_value(colour_e, brightness); 
+    uint32_t send_colourf = get_led_colour_value(colour_f, brightness);
+    uint32_t send_colourg = get_led_colour_value(colour_g, brightness);
+    diagonals(send_coloura, 1, orientation);
+    diagonals(send_colourb, 2, orientation);
+    diagonals(send_colourc, 3, orientation);
+    diagonals(send_colourd, 4, orientation);
+    diagonals(send_coloure, 5, orientation);
+    diagonals(send_colourf, 6, orientation);
+    diagonals(send_colourg, 7, orientation);
+
+    commit_pattern();
+}
+
+void layers(uint32_t layercolour, uint32_t layer_number) {
+    switch(layer_number) {
+    case 1:
+        for (uint i = 0; i < sizeof(layer1) / sizeof(layer1[0]); ++i) {
+            pixelcolours[layer1[i]] = layercolour;
+        }
+        break;
+    case 2:
+        for (uint i = 0; i < sizeof(layer2) / sizeof(layer2[0]); ++i) {
+            pixelcolours[layer2[i]] = layercolour;
+        }
+        break;
+    case 3:
+        for (uint i = 0; i < sizeof(layer3) / sizeof(layer3[0]); ++i) {
+            pixelcolours[layer3[i]] = layercolour;
+        }
+        break;
+    case 4:
+        for (uint i = 0; i < sizeof(layer4) / sizeof(layer4[0]); ++i) {
+            pixelcolours[layer4[i]] = layercolour;
+        }
+        break;
+    case 5:
+        for (uint i = 0; i < sizeof(layer5) / sizeof(layer5[0]); ++i) {
+            pixelcolours[layer5[i]] = layercolour;
+        }
+        break;
+    case 6:
+        for (uint i = 0; i < sizeof(layer6) / sizeof(layer6[0]); ++i) {
+            pixelcolours[layer6[i]] = layercolour;
+        }
+        break;
+    case 7:
+        for (uint i = 0; i < sizeof(layer7) / sizeof(layer7[0]); ++i) {
+            pixelcolours[layer7[i]] = layercolour;
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+void alternatelayers(uint32_t colour_a, uint32_t colour_b) {
+
+    layers(colour_a, 1);
+    layers(colour_b, 2);
+    layers(colour_a, 3);
+    layers(colour_b, 4);
+    layers(colour_a, 5);
+    layers(colour_b, 6);
+    layers(colour_a, 7);
+    
+    commit_pattern();
+}
+
+void alternatediagonals(uint32_t colour_a, uint32_t colour_b, bool orientation) {
+
+    diagonals(colour_a, 1, orientation);
+    diagonals(colour_b, 2, orientation);
+    diagonals(colour_a, 3, orientation);
+    diagonals(colour_b, 4, orientation);
+    diagonals(colour_a, 5, orientation);
+    diagonals(colour_b, 6, orientation);
+    diagonals(colour_a, 7, orientation);
+
+    commit_pattern();
+}
+
+void layersband(uint32_t colour_a, uint32_t colour_b, uint32_t colour_c, uint32_t colour_d, uint32_t colour_e, uint32_t colour_f, uint32_t colour_g) {
+    uint32_t send_coloura = get_led_colour_value(colour_a, brightness);
+    uint32_t send_colourb = get_led_colour_value(colour_b, brightness);
+    uint32_t send_colourc = get_led_colour_value(colour_c, brightness);
+    uint32_t send_colourd = get_led_colour_value(colour_d, brightness);
+    uint32_t send_coloure = get_led_colour_value(colour_e, brightness); 
+    uint32_t send_colourf = get_led_colour_value(colour_f, brightness);
+    uint32_t send_colourg = get_led_colour_value(colour_g, brightness);
+    layers(send_coloura, 1);
+    layers(send_colourb, 2);
+    layers(send_colourc, 3);
+    layers(send_colourd, 4);
+    layers(send_coloure, 5);
+    layers(send_colourf, 6);
+    layers(send_colourg, 7);
+
+    commit_pattern();
+}
 
 void animation_worker() {
     while (true) {
@@ -327,7 +541,7 @@ void animation_worker() {
                         int wait_ms = anim_speed > 0 ? anim_speed : 50;
                         for (int w = 0; w < wait_ms; w += 5) {
                             if (current_animation != ANIM_CORNERS) break;
-                            sleep_ms(5+anim_speed);
+                            sleep_ms(5 + anim_speed / 5);
                         }
                     }
                 }
@@ -416,10 +630,10 @@ void start_circle_animation(uint8_t speed) {
 }
 
 void start_corners_animation(uint8_t speed, uint8_t centre, uint8_t corner_a, uint8_t corner_b) {
-    anim_colour_c = get_led_colour_value(centre, brightness);
-    anim_colour_a = get_led_colour_value(corner_a, brightness);
-    anim_colour_b = get_led_colour_value(corner_b, brightness);
     stop_animations();
+    anim_colour_c = centre;
+    anim_colour_a = corner_a;
+    anim_colour_b = corner_b;
     anim_speed = speed;
     current_animation = ANIM_CORNERS;
 }

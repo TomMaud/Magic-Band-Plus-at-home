@@ -6,7 +6,7 @@
 
 
 
-#define MAGIC_PICO_ADVERTISING_TIME_MS 5000
+#define MAGIC_PICO_ADVERTISING_TIME_MS 10000
 
 void magicpico_init(void);
 bool magicpico_is_ready(void);
