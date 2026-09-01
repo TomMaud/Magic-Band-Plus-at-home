@@ -16,8 +16,8 @@
 #define PORT_DNS_SERVER 53
 #define DUMP_DATA 0
 
-#define DEBUG_printf(...)
-#define ERROR_printf printf
+#define DEBUG_//printf(...)
+#define ERROR_//printf //printf
 
 typedef struct dns_header_t_ {
     uint16_t id;
@@ -51,7 +51,7 @@ static int dns_socket_bind(struct udp_pcb **udp, uint32_t ip, uint16_t port) {
     IP4_ADDR(&addr, ip >> 24 & 0xff, ip >> 16 & 0xff, ip >> 8 & 0xff, ip & 0xff);
     err_t err = udp_bind(*udp, &addr, port);
     if (err != ERR_OK) {
-        ERROR_printf("dns failed to bind to port %u: %d", port, err);
+        ERROR_//printf("dns failed to bind to port %u: %d", port, err);
         assert(false);
     }
     return err;
@@ -63,13 +63,13 @@ static void dump_bytes(const uint8_t *bptr, uint32_t len) {
 
     for (i = 0; i < len;) {
         if ((i & 0x0f) == 0) {
-            printf("\n");
+            //printf("\n");
         } else if ((i & 0x07) == 0) {
-            printf(" ");
+            //printf(" ");
         }
-        printf("%02x ", bptr[i++]);
+        //printf("%02x ", bptr[i++]);
     }
-    printf("\n");
+    //printf("\n");
 }
 #endif
 
@@ -80,7 +80,7 @@ static int dns_socket_sendto(struct udp_pcb **udp, const void *buf, size_t len, 
 
     struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
     if (p == NULL) {
-        ERROR_printf("DNS: Failed to send message out of memory\n");
+        ERROR_//printf("DNS: Failed to send message out of memory\n");
         return -ENOMEM;
     }
 
@@ -90,7 +90,7 @@ static int dns_socket_sendto(struct udp_pcb **udp, const void *buf, size_t len, 
     pbuf_free(p);
 
     if (err != ERR_OK) {
-        ERROR_printf("DNS: Failed to send message %d\n", err);
+        ERROR_//printf("DNS: Failed to send message %d\n", err);
         return err;
     }
 
@@ -111,7 +111,7 @@ static void dns_server_process(
 
     (void)upcb;
 
-    DEBUG_printf("DNS request: %u bytes\n", p->tot_len);
+    //DEBUG_//printf("DNS request: %u bytes\n", p->tot_len);
 
     uint8_t dns_msg[MAX_DNS_MSG_SIZE];
     dns_header_t *dns_hdr = (dns_header_t *)dns_msg;
@@ -219,12 +219,7 @@ static void dns_server_process(
 
     question_ptr += 4;
 
-    printf(
-        "[DNS] Query: %s  type=%u class=%u\n",
-        hostname,
-        qtype,
-        qclass
-    );
+    //printf(    "[DNS] Query: %s  type=%u class=%u\n",hostname, qtype,  qclass);
 
     /*
      * ---------------------------------------------------------
@@ -247,11 +242,11 @@ static void dns_server_process(
 
     if (qtype != 1) {
 
-        printf(
-            "[DNS] Ignoring non-A query for %s (type %u)\n",
-            hostname,
-            qtype
-        );
+        //printf(
+        //    "[DNS] Ignoring non-A query for %s (type %u)\n",
+        //    hostname,
+        //    qtype
+        //);
 
         goto ignore_request;
     }
@@ -335,11 +330,11 @@ static void dns_server_process(
     dns_hdr->additional_record_count =
         lwip_htons(0);
 
-    printf(
-        "[DNS] %s -> 192.168.4.1%s\n",
-        hostname,
-        is_magic_pico ? " [MAGIC.PICO]" : ""
-    );
+    //printf(
+     //   "[DNS] %s -> 192.168.4.1%s\n",
+      //  hostname,
+      //  is_magic_pico ? " [MAGIC.PICO]" : ""
+    //);
 
     /*
      * Send response
@@ -359,11 +354,11 @@ ignore_request:
 
 void dns_server_init(dns_server_t *d, struct netif *nif, ip_addr_t *ip) {
     if (dns_socket_new_dgram(&d->udp, d, dns_server_process) != ERR_OK) {
-        DEBUG_printf("dns server failed to start\n");
+        DEBUG_//printf("dns server failed to start\n");
         return;
     }
     if (dns_socket_bind(&d->udp, 0, PORT_DNS_SERVER) != ERR_OK) {
-        DEBUG_printf("dns server failed to bind\n");
+        DEBUG_//printf("dns server failed to bind\n");
         return;
     }
     // Restrict the server to a single interface (the AP). The bind above uses
@@ -374,7 +369,7 @@ void dns_server_init(dns_server_t *d, struct netif *nif, ip_addr_t *ip) {
         udp_bind_netif(d->udp, nif);
     }
     ip_addr_copy(d->ip, *ip);
-    DEBUG_printf("dns server listening on port %d\n", PORT_DNS_SERVER);
+    DEBUG_//printf("dns server listening on port %d\n", PORT_DNS_SERVER);
 }
 
 void dns_server_deinit(dns_server_t *d) {

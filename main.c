@@ -30,18 +30,22 @@ typedef struct
 
 static bool handle_request(const char *request_line)
 {
+    printf(request_line);
     const char *band_param = strstr(request_line, "band=");
+
 
     if (band_param)
     {
         band_param += 5;
         if (strncmp(band_param, "rainbow", 7) == 0)
         {
+            stop_animations(); 
             start_rainbow_animation(0xFF);
             broadcast_packet(taste_rainbow, taste_rainbow_len);
         }
         else if (strncmp(band_param, "circle", 6) == 0)
         {
+            stop_animations(); 
             start_circle_animation(0xBF);
             broadcast_packet(circle, circle_len);
         }
@@ -98,7 +102,7 @@ static bool handle_request(const char *request_line)
             layers(colours[0], 2);
             layers(colours[0], 1);
             commit_pattern();
-            fivecolour(COLOUR_WHITE, COLOUR_PINK, COLOUR_CYAN, COLOUR_CYAN, COLOUR_PINK, VIB_NONE);
+            fivecolour(COLOUR_WHITE, COLOUR_PINK, COLOUR_BLUE, COLOUR_BLUE, COLOUR_PINK, VIB_NONE);
         }
 
         return true;
@@ -121,6 +125,7 @@ static bool handle_request(const char *request_line)
         uint8_t vibration = (uint8_t)strtoul(flicker_vib_param + 12, NULL, 0);
         uint8_t speed = (uint8_t)strtoul(flicker_speed_param + 13, NULL, 0);
 
+        stop_animations(); 
         start_flicker_animation(speed, centre, top_right, bottom_right, top_left, bottom_left);
         five_slot_animation(centre, top_right, bottom_right, top_left, bottom_left, speed, vibration);
         return true;
@@ -140,6 +145,7 @@ static bool handle_request(const char *request_line)
         uint8_t mask =
             (uint8_t)strtoul(mask_param + 5, NULL, 0);
 
+        stop_animations(); 
         colour_fill(colour, mask);
         send_colour(
             colour,
@@ -185,6 +191,7 @@ static bool handle_request(const char *request_line)
 
     uint8_t vibration =
         (uint8_t)strtoul(multi_vib_param + 4, NULL, 0);
+        stop_animations(); 
         fivecolour(centre, top_right, bottom_right, top_left, bottom_left, vibration);
         section_fill(centre, top_right, bottom_right, top_left, bottom_left);
         return true;
@@ -210,7 +217,8 @@ static bool handle_request(const char *request_line)
             };
 
             outer = valid_colours[rand() % (sizeof(valid_colours) / sizeof(valid_colours[0]))];
-}
+        }
+        stop_animations();
         section_fill(centre, outer, outer, outer, outer);
         dualcolour(centre, outer, vibration);
 
@@ -228,6 +236,7 @@ static bool handle_request(const char *request_line)
         uint8_t vibration = (uint8_t)strtoul(crossfade_vib_param + 13, NULL, 0);
         uint8_t speed = (uint8_t)strtoul(crossfade_speed_param + 15, NULL, 0);
 
+        stop_animations();
         start_crossfade_animation(colour_a, colour_b, speed);
         crossfade(colour_a, colour_b, vibration, speed);
 
@@ -263,7 +272,7 @@ if (cornera && cornerb && cornerspeed && corner_vib_param && cornercentre) {
     uint8_t corner_b = (uint8_t)strtoul(cornerb + 8, NULL, 0);
     uint8_t speed = (uint8_t)strtoul(cornerspeed + 12, NULL, 0);
     uint8_t vibration = (uint8_t)strtoul(corner_vib_param + 10, NULL, 0);
-    uint8_t centre = (uint8_t)strtoul(cornercentre + 12, NULL, 0);
+    uint8_t centre = (uint8_t)strtoul(cornercentre + 13, NULL, 0);
 
     stop_animations();
     start_corners_animation(speed, centre, corner_a, corner_b);
@@ -293,7 +302,7 @@ if (cornera && cornerb && cornerspeed && corner_vib_param && cornercentre) {
         uint8_t vib = (uint8_t)strtoul(diagonalVib + 12, NULL, 0);
         bool orientation_toggle = (orientation == 1) ? true : false;
         stop_animations();
-        diagonalsband(d1, d2, d3, d4, d5, d6, d7, orientation_toggle);
+        diagonalsband(d1, d2, d4, d3, d5, d6, d7, orientation_toggle);
         fivecolour(d1, d2, d3, d4, d5, vib);
         
         return true;
@@ -316,7 +325,7 @@ if (cornera && cornerb && cornerspeed && corner_vib_param && cornercentre) {
         uint8_t l5 = (uint8_t)strtoul(layer5 + 7, NULL, 0);
         uint8_t l6 = (uint8_t)strtoul(layer6 + 7, NULL, 0);
         uint8_t l7 = (uint8_t)strtoul(layer7 + 7, NULL, 0);
-        uint8_t vib = (uint8_t)strtoul(layerVib + 12, NULL, 0);
+        uint8_t vib = (uint8_t)strtoul(layerVib + 9, NULL, 0);
         stop_animations();
         layersband(l1, l2, l3, l4, l5, l6, l7);
         fivecolour(l1, l2, l3, l4, l5, vib);
@@ -564,7 +573,8 @@ int main(void){
 
     while (true){
         cyw43_arch_poll();
-        magicpico_update();
+        //magicpico_update();
         sleep_ms(1);
     }
+    
 }
