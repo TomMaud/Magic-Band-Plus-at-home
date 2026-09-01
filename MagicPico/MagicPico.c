@@ -9,16 +9,7 @@
 #include "MagicBoard.h"
 
 
-/*
- * ============================================================
- * BLE / MagicBand advertising configuration
- * ============================================================
- *
- * 20-25 ms is the interval used by the working MagicBand
- * implementation we are basing this on.
- *
- * One command remains active for 2 seconds.
- */
+
 #define MAGIC_PICO_ADV_MIN_INTERVAL   0x0020   // 20 ms
 #define MAGIC_PICO_ADV_MAX_INTERVAL   0x0028   // 25 ms
 
@@ -27,12 +18,6 @@
 #endif
 
 
-/*
- * ============================================================
- * BLE state
- * ============================================================
- */
-
 static btstack_packet_callback_registration_t hci_event_cb;
 
 static volatile bool ble_ready = false;
@@ -40,28 +25,12 @@ static volatile bool advertising_active = false;
 
 static absolute_time_t advertising_stop_time;
 
-
-/*
- * The actual advertisement currently being transmitted.
- *
- * Keeping our own copy means the buffer remains valid for the
- * entire advertising period.
- */
 static uint8_t current_adv_data[31];
 static uint8_t current_adv_len = 0;
 
 
-/*
- * ============================================================
- * HCI event handler
- * ============================================================
- */
 
-static void packet_handler(uint8_t packet_type,
-                           uint16_t channel,
-                           uint8_t *packet,
-                           uint16_t size)
-{
+static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size){
     (void)channel;
     (void)size;
 
@@ -81,12 +50,6 @@ static void packet_handler(uint8_t packet_type,
 }
 
 
-/*
- * ============================================================
- * Initialisation
- * ============================================================
- */
-
 void magicpico_init(void)
 {
     printf("[BLE] Initialising...\n");
@@ -95,31 +58,14 @@ void magicpico_init(void)
     advertising_active = false;
     current_adv_len = 0;
 
-    /*
-     * Initialise L2CAP.
-     */
+
     l2cap_init();
 
-    /*
-     * Register HCI event handler.
-     */
     hci_event_cb.callback = &packet_handler;
     hci_add_event_handler(&hci_event_cb);
 
-    /*
-     * Power up Bluetooth.
-     */
     hci_power_control(HCI_POWER_ON);
 
-
-    /*
-     * MagicBand advertising parameters.
-     *
-     * 20-25 ms interval.
-     *
-     * 0 = ADV_IND
-     * 0 = public/random address selection handled by stack
-     */
     bd_addr_t null_addr = {
         0, 0, 0, 0, 0, 0
     };
@@ -135,9 +81,7 @@ void magicpico_init(void)
     );
 
 
-    /*
-     * Make absolutely sure advertising starts disabled.
-     */
+
     gap_advertisements_enable(0);
 
     advertising_active = false;
@@ -147,11 +91,6 @@ void magicpico_init(void)
 }
 
 
-/*
- * ============================================================
- * Status
- * ============================================================
- */
 
 bool magicpico_is_ready(void)
 {
@@ -165,34 +104,6 @@ bool magicpico_is_advertising(void)
 }
 
 
-/*
- * ============================================================
- * Build MagicBand advertisement
- * ============================================================
- *
- * Input:
- *
- *   83 01 XX XX XX ...
- *
- * or:
- *
- *   XX XX XX ...
- *
- * If 83 01 is present we remove it from the payload and add
- * the manufacturer company ID ourselves.
- *
- * Final advertisement:
- *
- *   02 01 06
- *   LEN FF
- *   83 01
- *   MAGICBAND DATA...
- *
- * This is the same manufacturer-data structure your existing
- * implementation was producing.
- * ============================================================
- */
-
 static bool build_advertisement(const uint8_t *data,
                                 uint8_t length)
 {
@@ -204,10 +115,6 @@ static bool build_advertisement(const uint8_t *data,
 
     size_t start_idx = 0;
 
-
-    /*
-     * Remove company ID if caller supplied it.
-     */
     if (length >= 2 &&
         data[0] == 0x83 &&
         data[1] == 0x01)
@@ -218,30 +125,8 @@ static bool build_advertisement(const uint8_t *data,
 
     size_t payload_len = length - start_idx;
 
-
-    /*
-     * Manufacturer data:
-     *
-     * 83 01
-     * payload
-     */
     size_t manufacturer_data_len = 2 + payload_len;
 
-
-    /*
-     * AD structure:
-     *
-     * length byte
-     * type byte
-     * manufacturer data
-     *
-     * Total:
-     *
-     * 3 bytes flags
-     * 1 length
-     * 1 type
-     * manufacturer data
-     */
     size_t total_len =
         3 +
         1 +
@@ -262,42 +147,22 @@ static bool build_advertisement(const uint8_t *data,
     uint8_t idx = 0;
 
 
-    /*
-     * Flags.
-     */
     current_adv_data[idx++] = 0x02;
     current_adv_data[idx++] = 0x01;
     current_adv_data[idx++] = 0x06;
 
 
-    /*
-     * Manufacturer data AD structure.
-     *
-     * Length includes:
-     *
-     *   type byte
-     *   manufacturer data
-     */
     current_adv_data[idx++] =
         (uint8_t)(manufacturer_data_len + 1);
 
 
-    /*
-     * Manufacturer specific data.
-     */
     current_adv_data[idx++] = 0xFF;
 
 
-    /*
-     * MagicBand company ID.
-     */
     current_adv_data[idx++] = 0x83;
     current_adv_data[idx++] = 0x01;
 
 
-    /*
-     * Actual MagicBand packet.
-     */
     memcpy(
         &current_adv_data[idx],
         data + start_idx,
@@ -314,12 +179,6 @@ static bool build_advertisement(const uint8_t *data,
 }
 
 
-/*
- * ============================================================
- * Start / restart current advertisement
- * ============================================================
- */
-
 static void start_current_advertisement(void)
 {
     if (!ble_ready) {
@@ -333,39 +192,23 @@ static void start_current_advertisement(void)
     }
 
 
-    /*
-     * Stop the previous advertisement.
-     *
-     * This happens ONCE when a new command arrives.
-     *
-     * We do NOT stop/start it repeatedly during the 2 second
-     * advertising period.
-     */
     gap_advertisements_enable(0);
 
     advertising_active = false;
 
 
-    /*
-     * Load new advertisement.
-     */
     gap_advertisements_set_data(
         current_adv_len,
         current_adv_data
     );
 
 
-    /*
-     * Start advertising.
-     */
+
     gap_advertisements_enable(1);
 
     advertising_active = true;
 
 
-    /*
-     * Keep it active for the full transmission window.
-     */
     advertising_stop_time =
         make_timeout_time_ms(
             MAGIC_PICO_ADVERTISING_TIME_MS
@@ -380,11 +223,6 @@ static void start_current_advertisement(void)
 }
 
 
-/*
- * ============================================================
- * Broadcast a MagicBand packet
- * ============================================================
- */
 
 void broadcast_packet(uint8_t *data, uint8_t length)
 {
@@ -406,14 +244,6 @@ void broadcast_packet(uint8_t *data, uint8_t length)
     }
 
 
-    /*
-     * Debug output.
-     */
-    printf(
-        "[BLE] MB PACKET (%u): ",
-        length
-    );
-
     for (uint8_t i = 0; i < length; i++) {
         printf("%02X", data[i]);
 
@@ -425,21 +255,12 @@ void broadcast_packet(uint8_t *data, uint8_t length)
     printf("\n");
 
 
-    /*
-     * Build our persistent advertisement buffer.
-     */
+
     if (!build_advertisement(data, length)) {
         return;
     }
 
 
-    /*
-     * Debug output.
-     */
-    printf(
-        "[BLE] ADV DATA (%u): ",
-        current_adv_len
-    );
 
     for (uint8_t i = 0; i < current_adv_len; i++) {
         printf("%02X", current_adv_data[i]);
@@ -452,27 +273,9 @@ void broadcast_packet(uint8_t *data, uint8_t length)
     printf("\n");
 
 
-    /*
-     * Start transmitting.
-     */
     start_current_advertisement();
 }
 
-
-/*
- * ============================================================
- * Periodic update
- * ============================================================
- *
- * Call this frequently from the main loop.
- *
- * IMPORTANT:
- *
- * This function does NOT restart advertising.
- *
- * It only stops it when the transmission window has expired.
- * ============================================================
- */
 
 void magicpico_update(void)
 {
@@ -495,11 +298,6 @@ void magicpico_update(void)
 }
 
 
-/*
- * ============================================================
- * Stop advertising immediately
- * ============================================================
- */
 
 void magicpico_stop(void)
 {
@@ -514,12 +312,6 @@ void magicpico_stop(void)
     printf("[BLE] Advertising stopped\n");
 }
 
-
-/*
- * ============================================================
- * MagicBand packet functions
- * ============================================================
- */
 
 void send_colour(uint8_t colour,
                  uint8_t vibration,

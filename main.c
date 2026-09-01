@@ -302,7 +302,7 @@ if (cornera && cornerb && cornerspeed && corner_vib_param && cornercentre) {
         uint8_t vib = (uint8_t)strtoul(diagonalVib + 12, NULL, 0);
         bool orientation_toggle = (orientation == 1) ? true : false;
         stop_animations();
-        diagonalsband(d1, d2, d4, d3, d5, d6, d7, orientation_toggle);
+        diagonalsband(d1, d2, d3, d4, d5, d6, d7, orientation_toggle);
         fivecolour(d1, d2, d3, d4, d5, vib);
         
         return true;
