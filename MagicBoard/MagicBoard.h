@@ -54,6 +54,8 @@ void initleds(uint8_t WS2812_PIN, uint NUM_PIXELS, uint8_t BRIGHTNESS);
 void colour_fill(uint32_t colour, uint mask);
 void section_fill(uint32_t centrecolour, uint32_t toprightcolour, uint32_t bottomrightcolour, uint32_t topleftcolour, uint32_t bottomleftcolour);
 uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness);
+void updatebrightness(uint8_t NewBrightness);
+
 void pattern_clear();
 void custom_colour_fill(uint8_t red, uint8_t green, uint8_t blue, uint mask);
 void alternatediagonals(uint32_t colour_a, uint32_t colour_b, bool orientation);

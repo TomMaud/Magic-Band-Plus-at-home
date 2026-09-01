@@ -20,7 +20,7 @@
 #define HTTP_PORT 80
 #define HTTPS_PORT 443
 
-#define LED_BRIGHTNESS 10
+uint8_t LED_BRIGHTNESS = 10;
 
 typedef struct
 {
@@ -40,13 +40,13 @@ static bool handle_request(const char *request_line)
         if (strncmp(band_param, "rainbow", 7) == 0)
         {
             stop_animations(); 
-            start_rainbow_animation(0xFF);
+            start_rainbow_animation(0x64);
             broadcast_packet(taste_rainbow, taste_rainbow_len);
         }
         else if (strncmp(band_param, "circle", 6) == 0)
         {
             stop_animations(); 
-            start_circle_animation(0xBF);
+            start_circle_animation(0x64);
             broadcast_packet(circle, circle_len);
         }
         else if (strncmp(band_param, "connect", 7) == 0)
@@ -107,7 +107,13 @@ static bool handle_request(const char *request_line)
 
         return true;
     }
-
+    char *updatedbrightness = strstr(request_line, "newbrightness=");
+    if (updatedbrightness){
+        uint8_t newbrightness = (uint8_t)strtoul(updatedbrightness + 14, NULL, 0);
+        updatebrightness(newbrightness);
+        LED_BRIGHTNESS = newbrightness;
+        return true;
+    }
 
     char *flicker_centre_param = strstr(request_line, "flickercentre=");
     char *flicker_topright_param = strstr(request_line, "flickertopright=");
@@ -118,11 +124,11 @@ static bool handle_request(const char *request_line)
     char *flicker_speed_param = strstr(request_line, "flickerspeed=");
     if (flicker_centre_param && flicker_topright_param && flicker_bottomright_param && flicker_topleft_param && flicker_bottomleft_param && flicker_vib_param && flicker_speed_param) {
         uint8_t centre = (uint8_t)strtoul(flicker_centre_param + 14, NULL, 0);
-        uint8_t top_right = (uint8_t)strtoul(flicker_topright_param + 17 , NULL, 0);
-        uint8_t bottom_right = (uint8_t)strtoul(flicker_bottomright_param + 20, NULL, 0);
-        uint8_t top_left = (uint8_t)strtoul(flicker_topleft_param + 16, NULL, 0);
-        uint8_t bottom_left = (uint8_t)strtoul(flicker_bottomleft_param + 19, NULL, 0);
-        uint8_t vibration = (uint8_t)strtoul(flicker_vib_param + 12, NULL, 0);
+        uint8_t top_right = (uint8_t)strtoul(flicker_topright_param + 16 , NULL, 0);
+        uint8_t bottom_right = (uint8_t)strtoul(flicker_bottomright_param + 19, NULL, 0);
+        uint8_t top_left = (uint8_t)strtoul(flicker_topleft_param + 15, NULL, 0);
+        uint8_t bottom_left = (uint8_t)strtoul(flicker_bottomleft_param + 18, NULL, 0);
+        uint8_t vibration = (uint8_t)strtoul(flicker_vib_param + 11, NULL, 0);
         uint8_t speed = (uint8_t)strtoul(flicker_speed_param + 13, NULL, 0);
 
         stop_animations(); 
@@ -303,7 +309,7 @@ if (cornera && cornerb && cornerspeed && corner_vib_param && cornercentre) {
         bool orientation_toggle = (orientation == 1) ? true : false;
         stop_animations();
         diagonalsband(d1, d2, d3, d4, d5, d6, d7, orientation_toggle);
-        fivecolour(d1, d2, d3, d4, d5, vib);
+        fivecolour(d1, d2, d3, d5, d4, vib);
         
         return true;
     }

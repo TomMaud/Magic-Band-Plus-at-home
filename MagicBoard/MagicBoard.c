@@ -631,6 +631,10 @@ void start_circle_animation(uint8_t speed) {
 
 void start_corners_animation(uint8_t speed, uint8_t centre, uint8_t corner_a, uint8_t corner_b) {
     stop_animations();
+    
+    if (centre == 0x1F) {
+        centre = COLOUR_OFF;
+    }
     anim_colour_c = centre;
     anim_colour_a = corner_a;
     anim_colour_b = corner_b;
@@ -647,6 +651,10 @@ void start_flicker_animation(uint8_t speed, uint8_t centre, uint8_t topright, ui
     stop_animations();
     anim_speed = speed;
     current_animation = ANIM_FLICKER;
+}
+
+void updatebrightness(uint8_t NewBrightness){
+    brightness = NewBrightness;
 }
 
 void initleds(uint8_t WS2812_PIN, uint num_pixels,uint8_t BRIGHTNESS) {
